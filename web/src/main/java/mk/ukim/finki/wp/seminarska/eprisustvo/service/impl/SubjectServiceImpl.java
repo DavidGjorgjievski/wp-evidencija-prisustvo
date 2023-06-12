@@ -4,7 +4,7 @@ import mk.ukim.finki.wp.seminarska.eprisustvo.model.Subject;
 import mk.ukim.finki.wp.seminarska.eprisustvo.repository.SubjectRepository;
 import mk.ukim.finki.wp.seminarska.eprisustvo.service.SubjectService;
 import org.springframework.stereotype.Service;
-
+import mk.ukim.finki.wp.seminarska.eprisustvo.model.exceptions.SubjectNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,18 +22,29 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public Optional<Subject> findById(Long id) {
-        return this.subjectRepository.findById(id);
+    public Optional<Subject> findByCode(String code) {
+        return this.subjectRepository.findByCode(code);
     }
 
     @Override
-    public void deleteById(Long id) {
-        this.deleteById(id);
-    }
-
-    @Override
-    public Optional<Subject> save(String name, Integer num_credits, String semester) {
-        Subject subject = new Subject(name, num_credits, semester);
+    public Optional<Subject> create(String code, String name, Integer num_credits, Integer semester) {
+        Subject subject = new Subject(code, name, num_credits, semester);
         return Optional.of(this.subjectRepository.save(subject));
+    }
+
+    @Override
+    public Optional<Subject> update(String code, String name, Integer num_credits, Integer semester) {
+        Subject subject = this.subjectRepository.findByCode(code).orElseThrow(() -> new SubjectNotFoundException(code));
+
+        subject.setName(name);
+        subject.setNum_credits(num_credits);
+        subject.setSemester(semester);
+
+        return Optional.of(this.subjectRepository.save(subject));
+    }
+
+    @Override
+    public void deleteByCode(String code) {
+        this.subjectRepository.deleteByCode(code);
     }
 }

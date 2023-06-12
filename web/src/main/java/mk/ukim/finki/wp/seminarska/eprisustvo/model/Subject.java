@@ -11,19 +11,16 @@ import lombok.Data;
 @Entity
 public class Subject {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;            // Veb Programiranje
-
+    private String code;        // CSES401
+    private String name;        // Operating Systems
     private Integer num_credits;    // 6
-
-    private String semester;        // first, second, trird semester etc.
+    private Integer semester;       // 1, 2, 3, 4, 5, 6.....
 
     public Subject() {
     }
 
-    public Subject(String name, Integer num_credits, String semester) {
+    public Subject(String code, String name, Integer num_credits, Integer semester) {
+        this.code = code;
         this.name = name;
         this.num_credits = num_credits;
         this.semester = semester;

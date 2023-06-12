@@ -12,4 +12,13 @@ public class ListensToKey implements Serializable {
 
     @Column(name = "course_id")
     Long courseId;
+
+    public ListensToKey(String index, Long id) {
+        this.studentIndex = index;
+        this.courseId = id;
+    }
+
+    public ListensToKey() {
+
+    }
 }

@@ -24,4 +24,8 @@ public class Student {
         this.email = email;
         this.password = password;
     }
+//
+//    public void reportAttendanceToActivity(String code) {
+//
+//    }
 }

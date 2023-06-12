@@ -16,15 +16,17 @@ public class Course {
     private String semester;        // summer or winter semester
     @ManyToOne
     private Subject subject;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Professor> professors;
 
     public Course() {
     }
 
-    public Course(String name, String year, String semester) {
+    public Course(String name, String year, String semester, Subject subject, List<Professor> professors) {
         this.name = name;
         this.year = year;
         this.semester = semester;
+        this.professors = professors;
+        this.subject = subject;
     }
 }
