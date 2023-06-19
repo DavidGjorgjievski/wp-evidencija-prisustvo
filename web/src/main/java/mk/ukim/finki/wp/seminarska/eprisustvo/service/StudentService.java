@@ -1,10 +1,13 @@
 package mk.ukim.finki.wp.seminarska.eprisustvo.service;
 
 import mk.ukim.finki.wp.seminarska.eprisustvo.model.Student;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
-public interface StudentService {
+public interface StudentService  {
     List<Student> findAll();
     Optional<Student> findByIndex(String index);
     Optional<Student> create(String index,
@@ -23,5 +26,5 @@ public interface StudentService {
     void deleteByIndex(String index);
 
 
-
+    UserDetails loadUserByIndex(String s) throws UsernameNotFoundException;
 }

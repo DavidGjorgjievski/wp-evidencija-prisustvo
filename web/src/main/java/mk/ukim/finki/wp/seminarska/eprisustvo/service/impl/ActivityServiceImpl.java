@@ -1,5 +1,6 @@
 package mk.ukim.finki.wp.seminarska.eprisustvo.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import mk.ukim.finki.wp.seminarska.eprisustvo.model.Activity;
 import mk.ukim.finki.wp.seminarska.eprisustvo.model.Course;
 import mk.ukim.finki.wp.seminarska.eprisustvo.model.Professor;
@@ -11,7 +12,9 @@ import mk.ukim.finki.wp.seminarska.eprisustvo.repository.CourseRepository;
 import mk.ukim.finki.wp.seminarska.eprisustvo.repository.ProfessorRepository;
 import mk.ukim.finki.wp.seminarska.eprisustvo.repository.StudentRepository;
 import mk.ukim.finki.wp.seminarska.eprisustvo.service.ActivityService;
+import mk.ukim.finki.wp.seminarska.eprisustvo.service.CourseService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,11 +28,17 @@ public class ActivityServiceImpl implements ActivityService {
     private final ProfessorRepository professorRepository;
     private final StudentRepository studentRepository;
 
-    public ActivityServiceImpl(ActivityRepository activityRepository, CourseRepository courseRepository, ProfessorRepository professorRepository, StudentRepository studentRepository) {
+    private final CourseService courseService;
+
+    private final HttpServletRequest request;
+
+    public ActivityServiceImpl(ActivityRepository activityRepository, CourseRepository courseRepository, ProfessorRepository professorRepository, StudentRepository studentRepository, CourseService courseService, HttpServletRequest request) {
         this.activityRepository = activityRepository;
         this.courseRepository = courseRepository;
         this.professorRepository = professorRepository;
         this.studentRepository = studentRepository;
+        this.courseService = courseService;
+        this.request = request;
     }
 
     @Override
@@ -54,6 +63,7 @@ public class ActivityServiceImpl implements ActivityService {
         List<Professor> professors = this.professorRepository.findAllById(professorsUsernames);
 
         Activity activity = new Activity(title, code, open_date, close_date, location, course, professors);
+
         return Optional.of(this.activityRepository.save(activity));
     }
 
@@ -64,8 +74,11 @@ public class ActivityServiceImpl implements ActivityService {
                                      LocalDateTime close_date,
                                      String location,
                                      List<String> professorsUsernames,
-                                     ActivityStatus activityStatus) {
+                                     Long courseId) {
         Activity activity = this.activityRepository.findById(id).orElseThrow(() -> new ActivityNotFoundException(id));
+
+       Course course = this.courseService.findById(courseId)
+               .orElseThrow(() -> new CourseNotFoundException(courseId));
 
         activity.setTitle(title);
         activity.setOpen_date(open_date);
@@ -73,7 +86,7 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setLocation(location);
         List<Professor> professors = this.professorRepository.findAllById(professorsUsernames);
         activity.setProfessors(professors);
-        activity.setActivityStatus(activityStatus);
+        activity.setCourse(course);
 
         return Optional.of(this.activityRepository.save(activity));
     }
@@ -148,5 +161,10 @@ public class ActivityServiceImpl implements ActivityService {
                 this.activityRepository.save(activity);
             }
         }
+    }
+
+    @Override
+    public void saveActivityWithProfessor(Long id, String username) {
+
     }
 }

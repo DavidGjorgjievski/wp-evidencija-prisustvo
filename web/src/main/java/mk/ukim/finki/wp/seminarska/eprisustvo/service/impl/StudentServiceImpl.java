@@ -13,6 +13,8 @@ import mk.ukim.finki.wp.seminarska.eprisustvo.repository.ProfessorRepository;
 import mk.ukim.finki.wp.seminarska.eprisustvo.repository.StudentListensToCourseRepository;
 import mk.ukim.finki.wp.seminarska.eprisustvo.repository.StudentRepository;
 import mk.ukim.finki.wp.seminarska.eprisustvo.service.StudentService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -84,4 +86,11 @@ public class StudentServiceImpl implements StudentService {
     public void deleteByIndex(String index) {
         this.studentRepository.deleteByIndex(index);
     }
+
+
+    @Override
+    public UserDetails loadUserByIndex(String s) throws UsernameNotFoundException {
+        return studentRepository.findByIndex(s).orElseThrow(()->new UsernameNotFoundException(s));
+    }
+
 }
