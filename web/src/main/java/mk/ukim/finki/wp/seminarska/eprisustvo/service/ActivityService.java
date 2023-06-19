@@ -1,6 +1,7 @@
 package mk.ukim.finki.wp.seminarska.eprisustvo.service;
 
 import mk.ukim.finki.wp.seminarska.eprisustvo.model.Activity;
+import mk.ukim.finki.wp.seminarska.eprisustvo.model.Course;
 import mk.ukim.finki.wp.seminarska.eprisustvo.model.enumerations.ActivityStatus;
 
 import java.time.LocalDateTime;
@@ -23,7 +24,7 @@ public interface ActivityService {
                               LocalDateTime close_date,
                               String location,
                               List<String> professorsUsernames,
-                              ActivityStatus activityStatus);
+                              Long course);
 
     Optional<Activity> reportStudentAttendanceToActivity(String studentIndex, String activityCode);
 
@@ -36,4 +37,6 @@ public interface ActivityService {
     void deleteById(Long id);
 
     void activitiesStatusCheckAndUpdate();
+
+    void saveActivityWithProfessor(Long id,String username);
 }

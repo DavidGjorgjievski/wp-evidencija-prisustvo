@@ -5,6 +5,8 @@ import mk.ukim.finki.wp.seminarska.eprisustvo.model.exceptions.InvalidUsernameOr
 import mk.ukim.finki.wp.seminarska.eprisustvo.model.exceptions.ProfessorNotFoundException;
 import mk.ukim.finki.wp.seminarska.eprisustvo.repository.ProfessorRepository;
 import mk.ukim.finki.wp.seminarska.eprisustvo.service.ProfessorService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -54,5 +56,10 @@ public class ProfessorServiceImpl implements ProfessorService {
     @Override
     public void deleteByUsername(String username) {
         this.professorRepository.deleteByUsername(username);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+        return professorRepository.findByUsername(s).orElseThrow(()->new UsernameNotFoundException(s));
     }
 }
