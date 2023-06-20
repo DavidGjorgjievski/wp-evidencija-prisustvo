@@ -102,7 +102,65 @@ public class ActivityController {
         return "activity";
     }
 
+    @PostMapping("/search")
+    public String searchBalloon(@RequestParam(required = false) String searchQuery, Model model, HttpServletRequest request) {
+        UserDetails userDetails = (UserDetails) request.getSession().getAttribute("user");
 
+        String username = userDetails.getUsername();
+
+        Boolean adminRole = true;
+
+
+        if (studentService.findByIndex(username).isPresent()) {
+            adminRole = false;
+        } else if (professorService.findByUsername(username).isPresent()) {
+            adminRole = true;
+        } else {
+            adminRole = false;
+        }
+
+        this.activityService.activitiesStatusCheckAndUpdate();
+
+        List<Activity> activities = activityService.findAll().stream()
+                .filter(activity -> activity.getActivityStatus() == ActivityStatus.CREATED)
+                .collect(Collectors.toList());
+
+        List<Activity> customActivities = new ArrayList<>();
+        if(adminRole){
+            for (Activity activity : activities) {
+                List<String> professorUsernames = activity.getProfessors().stream()
+                        .map(Professor::getUsername)
+                        .collect(Collectors.toList());
+                if (professorUsernames.contains(username)) {
+                    customActivities.add(activity);
+                }
+            }
+        }else{
+            List<ListensTo> listensToList = this.studentListensToCourseService.findAll();
+            for (Activity activity : activities) {
+                boolean matchFound = false;
+
+                for (ListensTo listensTo : listensToList) {
+                    if (activity.getCourse().equals(listensTo.getCourse()) &&
+                            listensTo.getStudent().getIndex().equals(username)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    customActivities.add(activity);
+                }
+            }
+        }
+
+
+        customActivities = customActivities.stream().filter(activity -> activity.getCode().equals(searchQuery))
+                .collect(Collectors.toList());
+        model.addAttribute("activities", customActivities);
+        model.addAttribute("adminRole", adminRole);
+        return "activity";
+    }
 
     @GetMapping("/add-form")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
