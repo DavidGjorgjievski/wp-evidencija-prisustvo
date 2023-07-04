@@ -1,16 +1,10 @@
 package mk.ukim.finki.wp.seminarska.eprisustvo.web;
 
 import jakarta.servlet.http.HttpServletRequest;
-import mk.ukim.finki.wp.seminarska.eprisustvo.model.Activity;
-import mk.ukim.finki.wp.seminarska.eprisustvo.model.Course;
-import mk.ukim.finki.wp.seminarska.eprisustvo.model.Professor;
-import mk.ukim.finki.wp.seminarska.eprisustvo.model.Student;
+import mk.ukim.finki.wp.seminarska.eprisustvo.model.*;
 import mk.ukim.finki.wp.seminarska.eprisustvo.model.exceptions.ActivityNotFoundException;
 import mk.ukim.finki.wp.seminarska.eprisustvo.model.exceptions.StudentNotFoundException;
-import mk.ukim.finki.wp.seminarska.eprisustvo.service.ActivityService;
-import mk.ukim.finki.wp.seminarska.eprisustvo.service.CourseService;
-import mk.ukim.finki.wp.seminarska.eprisustvo.service.ProfessorService;
-import mk.ukim.finki.wp.seminarska.eprisustvo.service.StudentService;
+import mk.ukim.finki.wp.seminarska.eprisustvo.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -18,7 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/activities/all")
@@ -32,11 +28,14 @@ public class AllActivityController {
 
     private final StudentService studentService;
 
-    public AllActivityController(ActivityService activityService, CourseService courseService, ProfessorService professorService, StudentService studentService) {
+    private final StudentListensToCourseService studentListensToCourseService;
+
+    public AllActivityController(ActivityService activityService, CourseService courseService, ProfessorService professorService, StudentService studentService, StudentListensToCourseService studentListensToCourseService) {
         this.activityService = activityService;
         this.courseService = courseService;
         this.professorService = professorService;
         this.studentService = studentService;
+        this.studentListensToCourseService = studentListensToCourseService;
     }
 
 
@@ -62,7 +61,36 @@ public class AllActivityController {
         this.activityService.activitiesStatusCheckAndUpdate();
 
         List<Activity> activities = activityService.findAll();
-        model.addAttribute("activities", activities);
+
+        List<Activity> customActivities = new ArrayList<>();
+        if(adminRole){
+            for (Activity activity : activities) {
+                List<String> professorUsernames = activity.getProfessors().stream()
+                        .map(Professor::getUsername)
+                        .collect(Collectors.toList());
+                if (professorUsernames.contains(username)) {
+                    customActivities.add(activity);
+                }
+            }
+        }else{
+            List<ListensTo> listensToList = this.studentListensToCourseService.findAll();
+            for (Activity activity : activities) {
+                boolean matchFound = false;
+
+                for (ListensTo listensTo : listensToList) {
+                    if (activity.getCourse().equals(listensTo.getCourse()) &&
+                            listensTo.getStudent().getIndex().equals(username)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    customActivities.add(activity);
+                }
+            }
+        }
+        model.addAttribute("activities", customActivities);
         model.addAttribute("adminRole", adminRole);
         return "all-activity";
     }
