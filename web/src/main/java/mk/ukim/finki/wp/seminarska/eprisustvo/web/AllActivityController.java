@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,6 +92,10 @@ public class AllActivityController {
                 }
             }
         }
+        // sorting the activities by open_date so the latest ones come on top
+        Comparator<Activity> dateComparator = Comparator.comparing(Activity::getOpen_date).reversed();
+        Collections.sort(customActivities, dateComparator);
+
         model.addAttribute("activities", customActivities);
         model.addAttribute("adminRole", adminRole);
         return "all-activity";
