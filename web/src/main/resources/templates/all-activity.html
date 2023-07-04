@@ -55,23 +55,37 @@
       <div class="card-deck">
         <div class="card mt-4" th:each="activity : ${activities}">
           <div class="row g-0">
-            <div class="col-md-4 bg-primary">
-            </div>
             <div class="col-md-8">
               <div class="card-body">
-                <h4 class="card-title" th:text="'Title: ' + ${activity.title}"></h4>
+                <h4 class="card-title" th:text="${activity.title}"></h4>
                 <h5 class="card-title" th:text="'Course: ' + ${activity.course.subject.name}"></h5>
-                <div>
-                  <span>Professors: </span> <br>
-                  <span class="card-text"  th:each="professor : ${activity.professors}" th:text="${professor.name} + ' ' + ${professor.surname} + ' '"></span>
+                <div class="d-flex flex-row">
+                  <div style="margin-right: 20px">
+                    <span>Professors: </span> <br>
+                    <span class="card-text"  th:each="professor : ${activity.professors}" th:text="${professor.name} + ' ' + ${professor.surname} + ' '"></span>
+                  </div>
+                  <br>
+                  <div style="margin-right: 20px">
+                    <span>Open-Closes:</span> <br>
+                    <p class="card-text" style="width: 280px"  th:text="${activity.open_date} + ' -' + ${activity.close_date}"></p>
+                  </div>
+                  <div style="margin-right: 20px">
+                    <span>Location:</span> <br>
+                    <p class="card-text" th:text="${activity.location}"></p>
+                  </div>
+                  <div style="margin-right: 20px">
+                    <p style="width: 160px">Number of attendees:</p> <br>
+                    <p class="card-text " style="margin-top: -30px" th:text="${activity.num_attendees}"></p>
+                  </div>
+                  <div style="margin-right: 20px">
+                    <span>Code:</span> <br>
+                    <p class="card-text " th:text="${activity.code}"></p>
+                  </div>
+                  <div style="margin-right: 20px">
+                    <span>Status:</span> <br>
+                    <p class="card-text " th:text="${activity.activityStatus}"></p>
+                  </div>
                 </div>
-                <br>
-                <p class="card-text " th:text="'Opens: '+ ${activity.open_date}"></p>
-                <p class="card-text" th:text="'Closes: '+ ${activity.close_date}"></p>
-                <p class="card-text" th:text="'Location: ' + ${activity.location}"></p>
-                <p class="card-text " th:text="'Number of attendees: '+ ${activity.num_attendees}"></p>
-                <p class="card-text " th:text="'Code: '+ ${activity.code}"></p>
-                <p class="card-text " th:text="'Status: '+ ${activity.activityStatus}"></p>
                 <th:block th:if="${adminRole}">
                   <div>
                     <hr>
